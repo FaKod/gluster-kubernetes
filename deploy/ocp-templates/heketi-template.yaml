@@ -58,7 +58,6 @@ objects:
         labels:
           glusterfs: heketi-pod
       spec:
-        serviceAccountName: heketi-service-account
         containers:
         - name: heketi
           image: heketi/heketi:dev

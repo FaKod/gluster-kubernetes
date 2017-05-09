@@ -64,7 +64,6 @@ objects:
           glusterfs: heketi-pod
           deploy-heketi: support
       spec:
-        serviceAccountName: heketi-service-account
         containers:
         - name: deploy-heketi
           image: heketi/heketi:dev
