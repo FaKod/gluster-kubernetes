@@ -532,7 +532,13 @@ while [[ "x${heketi_service}" == "x" ]] || [[ "${heketi_service}" == "<none>" ]]
   fi
   sleep 1
   ((s+=1))
-  heketi_service=$(${CLI} describe svc/deploy-heketi | grep "Endpoints:" | awk '{print $2}')
+
+  #kubectl -n default-system get pods -l glusterfs=heketi-pod -o name | sed 's/^.*\///' | xargs -I{} kubectl -n default-system port-forward {} 8080:8080 &
+  port_forward_pid=$!
+
+  heketi_service="localhost:8080"
+  echo "*****************************"
+  sleep 100
 done
 
 if [[ "${CLI}" == *oc\ * ]]; then
