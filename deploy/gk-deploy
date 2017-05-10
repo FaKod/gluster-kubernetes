@@ -538,7 +538,10 @@ while [[ "x${heketi_service}" == "x" ]] || [[ "${heketi_service}" == "<none>" ]]
 
   heketi_service="localhost:8080"
   echo "*****************************"
-  sleep 100
+  #sleep 100
+
+  exit 1
+
 done
 
 if [[ "${CLI}" == *oc\ * ]]; then
