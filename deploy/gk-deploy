@@ -374,6 +374,7 @@ if [[ ! -f ${TOPOLOGY} ]]; then
   exit 1
 else
   NODES=$(python - <<END
+# coding: utf8
 import sys
 import json
 import argparse
@@ -533,7 +534,7 @@ while [[ "x${heketi_service}" == "x" ]] || [[ "${heketi_service}" == "<none>" ]]
   sleep 1
   ((s+=1))
 
-  #kubectl -n default-system get pods -l glusterfs=heketi-pod -o name | sed 's/^.*\///' | xargs -I{} kubectl -n default-system port-forward {} 8080:8080 &
+  #kubectl -n ${NAMESPACE} get pods -l glusterfs=heketi-pod -o name | sed 's/^.*\///' | xargs -I{} kubectl -n ${NAMESPACE} port-forward {} 8080:8080 &
   port_forward_pid=$!
 
   heketi_service="localhost:8080"
