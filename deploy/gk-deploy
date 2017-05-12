@@ -538,8 +538,8 @@ while [[ "x${heketi_service}" == "x" ]] || [[ "${heketi_service}" == "<none>" ]]
   port_forward_pid=$!
 
   heketi_service="localhost:8080"
-  echo "*****************************"
-  #sleep 100
+  echo "***************************** wait for port-forward"
+  sleep 10
 
   exit 1
 
