@@ -596,7 +596,9 @@ if [[ ${?} != 0 ]]; then
   exit 1
 fi
 
+# this is for what is created by heketi-storage.json
 eval_output "${CLI} delete all,service,jobs,deployment,secret --selector=\"deploy-heketi\" 2>&1"
+# this ist for what is created before
 eval_output "${CLI} delete -n ${NAMESPACE} all,service,jobs,deployment,secret --selector=\"deploy-heketi\" 2>&1"
 
 if [[ "${CLI}" == *oc\ * ]]; then
