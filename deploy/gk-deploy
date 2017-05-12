@@ -431,7 +431,7 @@ if [[ -z "$NAMESPACE" ]]; then
   if [[ "${CLI}" == *oc ]]; then
     NAMESPACE=$(${CLI} config get-contexts | awk '/^\*/ {print $5}')
   elif [[ "${CLI}" == *kubectl ]]; then
-    NAMESPACE=$(${CLI} config current-context)
+    NAMESPACE=$(${CLI} config get-contexts | awk '/^\*/ {print $5}')
   fi
   if [[ -z "$NAMESPACE" ]]; then
     NAMESPACE="default"
@@ -595,6 +595,7 @@ if [[ ${?} != 0 ]]; then
 fi
 
 eval_output "${CLI} delete all,service,jobs,deployment,secret --selector=\"deploy-heketi\" 2>&1"
+eval_output "${CLI} delete -n ${NAMESPACE} all,service,jobs,deployment,secret --selector=\"deploy-heketi\" 2>&1"
 
 if [[ "${CLI}" == *oc\ * ]]; then
   eval_output "${CLI} process ${OC_PROCESS_VAL_SWITCH} HEKETI_ADMIN_KEY=${ADMIN_KEY} ${OC_PROCESS_VAL_SWITCH} HEKETI_USER_KEY=${USER_KEY} heketi | ${CLI} create -f - 2>&1"
