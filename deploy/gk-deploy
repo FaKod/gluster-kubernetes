@@ -173,7 +173,7 @@ abort() {
     fi
   fi
   if ! [ -z ${port_forward_pid+x} ]; then 
-    kill -KILL $port_forward_pid
+    kill -SIGKILL $port_forward_pid
   fi
   exit 1
 }
@@ -532,13 +532,15 @@ while [[ "x${heketi_service}" == "x" ]] || [[ "${heketi_service}" == "<none>" ]]
   fi
   sleep 1
   ((s+=1))
-
-  echo "Starting port-forward"
-  kubectl -n ${NAMESPACE} get pods -l glusterfs=heketi-pod -o name | sed 's/^.*\///' | xargs -I{} kubectl -n ${NAMESPACE} port-forward {} 8080:8080 &
-  port_forward_pid=$!
-  heketi_service="localhost:8080"
-  sleep 5
-
+  
+  if ! [[ "${CLI}" == *oc\ * ]]; then
+    echo "Starting port-forward"
+    heketi_pod=$(kubectl -n ${NAMESPACE} get pods -l glusterfs=heketi-pod -o name | sed 's/^.*\///')
+    kubectl -n ${NAMESPACE} port-forward ${heketi_pod} 8080:8080 >/dev/null &
+    port_forward_pid=$!
+    heketi_service="localhost:8080"
+    sleep 5
+  fi
 done
 
 if [[ "${CLI}" == *oc\ * ]]; then
@@ -620,8 +622,21 @@ while [[ "x${heketi_service}" == "x" ]] || [[ "${heketi_service}" == "<none>" ]]
   fi
   sleep 1
   ((s+=1))
-  heketi_service=$(${CLI} describe svc/heketi | grep "Endpoints:" | awk '{print $2}')
-done
+
+  echo "Killing old port forward"
+  kill -SIGKILL $port_forward_pid
+  sleep 1
+
+  if ! [[ "${CLI}" == *oc\ * ]]; then
+    echo "Starting port-forward"
+    heketi_pod=$(kubectl -n ${NAMESPACE} get pods -l glusterfs=heketi-pod -o name | sed 's/^.*\///')
+    kubectl -n ${NAMESPACE} port-forward ${heketi_pod} 8080:8080 >/dev/null &
+    port_forward_pid=$!
+    heketi_service="localhost:8080"
+    sleep 5
+  fi
+
+  done
 
 if [[ "${CLI}" == *oc\ * ]]; then
   heketi_service=$(${CLI} describe routes/heketi | grep "Requested Host:" | awk '{print $3}')
@@ -637,6 +652,10 @@ if [[ "${hello}" != "Hello from Heketi" ]]; then
 else
   debug "OK"
   output "heketi is now running and accessible via http://${heketi_service}/"
+fi
+
+if ! [ -z ${port_forward_pid+x} ]; then 
+  kill -SIGKILL $port_forward_pid
 fi
 
 output "Ready to create and provide GlusterFS volumes."
